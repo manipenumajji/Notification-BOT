@@ -1,3 +1,5 @@
-from logger import log_message
+from balance_checker import get_balance
 
-log_message("BOT STARTED")
+data = get_balance()
+
+print(data)

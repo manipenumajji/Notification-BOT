@@ -1,14 +1,69 @@
 import time
+import requests
+import winsound
 
-from price_fetcher import get_price
-from alert import check_alert
-from notification import play_alert, show_notification
-from telegram_notification import send_telegram_message
-from logger import log_message
+from datetime import datetime
+from plyer import notification
 
-target = float(input("Enter target price: "))
+from coindcx_client import get_price
 
-log_message(f"BOT STARTED | Target={target}")
+
+def log_message(message):
+
+    current_time = datetime.now()
+
+    with open("bot.log", "a") as file:
+
+        file.write(
+            f"{current_time} | {message}\n"
+        )
+
+
+def play_alert():
+
+    winsound.Beep(1000, 1000)
+
+
+def show_notification(price, target):
+
+    notification.notify(
+        title="Crypto Alert",
+        message=f"BTC Price: {price}\nTarget: {target}",
+        timeout=10
+    )
+
+
+from config import TELEGRAM_BOT_TOKEN
+from config import TELEGRAM_CHAT_ID
+
+
+def send_telegram_message(message):
+
+    url = (
+        f"https://api.telegram.org/bot"
+        f"{TELEGRAM_BOT_TOKEN}/sendMessage"
+    )
+
+    data = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message
+    }
+
+    response = requests.post(
+        url,
+        data=data
+    )
+
+    return response.json()
+
+
+target = float(
+    input("Enter target price: ")
+)
+
+log_message(
+    f"BOT STARTED | Target={target}"
+)
 
 alert_sent = False
 
@@ -22,17 +77,23 @@ try:
 
         except Exception as e:
 
-            log_message(f"PRICE FETCH ERROR | {e}")
+            log_message(
+                f"PRICE FETCH ERROR | {e}"
+            )
 
-            print(f"Price Error: {e}")
+            print(
+                f"Price Error: {e}"
+            )
 
             time.sleep(30)
 
             continue
 
-        print(f"Current Price: {price}")
+        print(
+            f"Current Price: {price}"
+        )
 
-        if check_alert(price, target) and not alert_sent:
+        if price >= target and not alert_sent:
 
             log_message(
                 f"ALERT TRIGGERED | Price={price} | Target={target}"
@@ -40,7 +101,10 @@ try:
 
             play_alert()
 
-            show_notification(price, target)
+            show_notification(
+                price,
+                target
+            )
 
             message = f"""
 🚨 BTC ALERT 🚨
@@ -51,17 +115,23 @@ Target Price: {target}
 
             try:
 
-                send_telegram_message(message)
+                send_telegram_message(
+                    message
+                )
 
-                log_message("TELEGRAM MESSAGE SENT")
+                log_message(
+                    "TELEGRAM MESSAGE SENT"
+                )
 
             except Exception as e:
 
-                log_message(f"TELEGRAM ERROR | {e}")
+                log_message(
+                    f"TELEGRAM ERROR | {e}"
+                )
 
-                print(f"Telegram Error: {e}")
-
-            print("Alert Triggered")
+            print(
+                "Alert Triggered"
+            )
 
             alert_sent = True
 
@@ -69,6 +139,8 @@ Target Price: {target}
 
 except KeyboardInterrupt:
 
-    log_message("BOT STOPPED BY USER")
+    log_message(
+        "BOT STOPPED BY USER"
+    )
 
     print("\nBot Stopped")
