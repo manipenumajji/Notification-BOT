@@ -28,8 +28,8 @@ while True:
 
 Market: {latest_trade["symbol"]}
 Side: {latest_trade["side"].upper()}
-Price: {latest_trade["price"]}
-Quantity: {latest_trade["quantity"]}
+Price: {float(latest_trade["price"]):.2f}
+Quantity: {float(latest_trade["quantity"]):.2f}
 Fee: {latest_trade["fee_amount"]}
 """
 

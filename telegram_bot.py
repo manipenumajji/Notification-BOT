@@ -8,9 +8,11 @@ from telegram.ext import (
 from config import TELEGRAM_BOT_TOKEN
 
 from portfolio import get_portfolio_report
+
 from coindcx_client import (
     get_balance,
-    get_trade_history
+    get_trade_history,
+    get_price
 )
 
 
@@ -26,6 +28,7 @@ Available Commands:
 /portfolio
 /balance
 /trades
+/price coin
 """
     )
 
@@ -57,7 +60,7 @@ async def balance(
 
             message += (
                 f'{item["currency"]}: '
-                f'{item["balance"]}\n'
+                f'{item["balance"]:.5f}\n'
             )
 
     await update.message.reply_text(
@@ -88,9 +91,49 @@ Quantity: {latest_trade["quantity"]}
     )
 
 
+async def price(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    if len(context.args) == 0:
+
+        await update.message.reply_text(
+            "Usage:\n/price BTCINR"
+        )
+
+        return
+
+    coin = context.args[0].upper()
+    market = coin + "INR"
+
+    try:
+
+        current_price = get_price(
+            market
+        )
+
+        message = f"""
+💲 {coin}
+
+Current Price: ₹{current_price}
+"""
+
+        await update.message.reply_text(
+            message
+        )
+
+    except Exception as e:
+
+        await update.message.reply_text(
+            str(e)
+        )
+
+
 app = Application.builder().token(
     TELEGRAM_BOT_TOKEN
 ).build()
+
 
 app.add_handler(
     CommandHandler(
@@ -119,6 +162,14 @@ app.add_handler(
         trades
     )
 )
+
+app.add_handler(
+    CommandHandler(
+        "price",
+        price
+    )
+)
+
 
 print("Telegram Bot Running...")
 
