@@ -1,18 +1,8 @@
-from coindcx_client import get_balance
-from main import send_telegram_message
+from order_manager import place_limit_buy
+response = place_limit_buy(
+    market="BTCINR",
+    quantity=0.00001,
+    price=4000000
+)
 
-data = get_balance()
-
-message = "📊 PORTFOLIO REPORT\n\n"
-
-for item in data:
-
-    if item["balance"] > 0:
-
-        message += (
-            f"{item['currency']} : "
-            f"{item['balance']:.8f}\n"
-        )
-
-print(message)
-send_telegram_message(message)
+print(response)

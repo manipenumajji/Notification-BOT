@@ -49,7 +49,7 @@ try:
 
         try:
 
-            price = get_price()
+            price = get_price("BTCUSDT")
 
         except Exception as e:
 

@@ -8,7 +8,7 @@ from config import COINDCX_API_KEY
 from config import COINDCX_SECRET_KEY
 
 
-def get_price():
+def get_price(market):
 
     url = "https://api.coindcx.com/exchange/ticker"
 
@@ -18,11 +18,11 @@ def get_price():
 
     for item in data:
 
-        if item["market"] == "BTCUSDT":
+        if item["market"] == market:
 
             return float(item["last_price"])
 
-    raise Exception("BTCUSDT market not found")
+    raise Exception(f"{market} not found")
 
 
 def make_authenticated_request(endpoint):
@@ -52,7 +52,7 @@ def make_authenticated_request(endpoint):
         "X-AUTH-SIGNATURE": signature
     }
 
-    url = f"https://api.coindcx.com/exchange/v1/users/{endpoint}"
+    url = f"https://api.coindcx.com/exchange/v1/{endpoint}"
 
     response = requests.post(
         url,
@@ -65,74 +65,18 @@ def make_authenticated_request(endpoint):
 
 def get_balance():
 
-    return make_authenticated_request("balances")
+    return make_authenticated_request(
+        "users/balances"
+    )
 #orders we placed
 def get_orders():
 
-    secret_bytes = bytes(
-        COINDCX_SECRET_KEY,
-        encoding="utf-8"
+    return make_authenticated_request(
+        "orders/active_orders"
     )
-
-    payload = {
-        "timestamp": int(round(time.time() * 1000))
-    }
-
-    json_body = json.dumps(
-        payload,
-        separators=(",", ":")
-    )
-
-    signature = hmac.new(
-        secret_bytes,
-        json_body.encode(),
-        hashlib.sha256
-    ).hexdigest()
-
-    headers = {
-        "X-AUTH-APIKEY": COINDCX_API_KEY,
-        "X-AUTH-SIGNATURE": signature
-    }
-
-    response = requests.post(
-        "https://api.coindcx.com/exchange/v1/orders/active_orders",
-        data=json_body,
-        headers=headers
-    )
-
-    return response.json()
 #trading history 
 def get_trade_history():
 
-    secret_bytes = bytes(
-        COINDCX_SECRET_KEY,
-        encoding="utf-8"
+    return make_authenticated_request(
+        "orders/trade_history"
     )
-
-    payload = {
-        "timestamp": int(round(time.time() * 1000))
-    }
-
-    json_body = json.dumps(
-        payload,
-        separators=(",", ":")
-    )
-
-    signature = hmac.new(
-        secret_bytes,
-        json_body.encode(),
-        hashlib.sha256
-    ).hexdigest()
-
-    headers = {
-        "X-AUTH-APIKEY": COINDCX_API_KEY,
-        "X-AUTH-SIGNATURE": signature
-    }
-
-    response = requests.post(
-        "https://api.coindcx.com/exchange/v1/orders/trade_history",
-        data=json_body,
-        headers=headers
-    )
-
-    return response.json()
