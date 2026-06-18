@@ -4,34 +4,71 @@ from price_fetcher import get_price
 from alert import check_alert
 from notification import play_alert, show_notification
 from telegram_notification import send_telegram_message
+from logger import log_message
 
 target = float(input("Enter target price: "))
 
+log_message(f"BOT STARTED | Target={target}")
+
 alert_sent = False
 
-while True:
+try:
 
-    price = get_price()
+    while True:
 
-    print(f"Current Price: {price}")
+        try:
 
-    if check_alert(price, target) and not alert_sent:
+            price = get_price()
 
-        play_alert()
+        except Exception as e:
 
-        show_notification(price, target)
+            log_message(f"PRICE FETCH ERROR | {e}")
 
-        message = f"""
+            print(f"Price Error: {e}")
+
+            time.sleep(30)
+
+            continue
+
+        print(f"Current Price: {price}")
+
+        if check_alert(price, target) and not alert_sent:
+
+            log_message(
+                f"ALERT TRIGGERED | Price={price} | Target={target}"
+            )
+
+            play_alert()
+
+            show_notification(price, target)
+
+            message = f"""
 🚨 BTC ALERT 🚨
 
 Current Price: {price}
 Target Price: {target}
 """
 
-        send_telegram_message(message)
+            try:
 
-        print("Alert Triggered")
+                send_telegram_message(message)
 
-        alert_sent = True
+                log_message("TELEGRAM MESSAGE SENT")
 
-    time.sleep(10)
+            except Exception as e:
+
+                log_message(f"TELEGRAM ERROR | {e}")
+
+                print(f"Telegram Error: {e}")
+
+            print("Alert Triggered")
+
+            alert_sent = True
+
+        time.sleep(10)
+
+except KeyboardInterrupt:
+
+    log_message("BOT STOPPED BY USER")
+
+    print("\nBot Stopped")
