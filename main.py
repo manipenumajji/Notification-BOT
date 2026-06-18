@@ -1,11 +1,11 @@
 import time
-import requests
 import winsound
 
 from datetime import datetime
 from plyer import notification
 
 from coindcx_client import get_price
+from telegram_utils import send_telegram_message
 
 
 def log_message(message):
@@ -33,39 +33,15 @@ def show_notification(price, target):
     )
 
 
-from config import TELEGRAM_BOT_TOKEN
-from config import TELEGRAM_CHAT_ID
-
-
-def send_telegram_message(message):
-
-    url = (
-        f"https://api.telegram.org/bot"
-        f"{TELEGRAM_BOT_TOKEN}/sendMessage"
-    )
-
-    data = {
-        "chat_id": TELEGRAM_CHAT_ID,
-        "text": message
-    }
-
-    response = requests.post(
-        url,
-        data=data
-    )
-
-    return response.json()
-
-
 target = float(
     input("Enter target price: ")
 )
 
+alert_sent = False
+
 log_message(
     f"BOT STARTED | Target={target}"
 )
-
-alert_sent = False
 
 try:
 
@@ -127,6 +103,10 @@ Target Price: {target}
 
                 log_message(
                     f"TELEGRAM ERROR | {e}"
+                )
+
+                print(
+                    f"Telegram Error: {e}"
                 )
 
             print(

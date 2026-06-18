@@ -66,3 +66,73 @@ def make_authenticated_request(endpoint):
 def get_balance():
 
     return make_authenticated_request("balances")
+#orders we placed
+def get_orders():
+
+    secret_bytes = bytes(
+        COINDCX_SECRET_KEY,
+        encoding="utf-8"
+    )
+
+    payload = {
+        "timestamp": int(round(time.time() * 1000))
+    }
+
+    json_body = json.dumps(
+        payload,
+        separators=(",", ":")
+    )
+
+    signature = hmac.new(
+        secret_bytes,
+        json_body.encode(),
+        hashlib.sha256
+    ).hexdigest()
+
+    headers = {
+        "X-AUTH-APIKEY": COINDCX_API_KEY,
+        "X-AUTH-SIGNATURE": signature
+    }
+
+    response = requests.post(
+        "https://api.coindcx.com/exchange/v1/orders/active_orders",
+        data=json_body,
+        headers=headers
+    )
+
+    return response.json()
+#trading history 
+def get_trade_history():
+
+    secret_bytes = bytes(
+        COINDCX_SECRET_KEY,
+        encoding="utf-8"
+    )
+
+    payload = {
+        "timestamp": int(round(time.time() * 1000))
+    }
+
+    json_body = json.dumps(
+        payload,
+        separators=(",", ":")
+    )
+
+    signature = hmac.new(
+        secret_bytes,
+        json_body.encode(),
+        hashlib.sha256
+    ).hexdigest()
+
+    headers = {
+        "X-AUTH-APIKEY": COINDCX_API_KEY,
+        "X-AUTH-SIGNATURE": signature
+    }
+
+    response = requests.post(
+        "https://api.coindcx.com/exchange/v1/orders/trade_history",
+        data=json_body,
+        headers=headers
+    )
+
+    return response.json()
