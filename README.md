@@ -1,15 +1,19 @@
-# Notification Bot
+# Crypto Price Alert Bot
 
-Crypto notification bot built with Python.
+A Python-based cryptocurrency price alert system.
 
 ## Features
 
-- Price alerts
-- Desktop notifications
-- Telegram notifications
-- CoinDCX integration (planned)
+- Live BTC price fetching
+- Custom target prices
+- Sound notifications
+- Continuous monitoring
+- One-time alert protection
 
-## Setup
+## Installation
 
-```bash
 pip install -r requirements.txt
+
+## Run
+
+python main.py
