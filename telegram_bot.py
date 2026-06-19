@@ -29,6 +29,7 @@ Available Commands:
 /balance
 /trades
 /price coin
+/watchlist
 """
     )
 
@@ -134,6 +135,46 @@ app = Application.builder().token(
     TELEGRAM_BOT_TOKEN
 ).build()
 
+# watchlist
+
+async def watchlist(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    WATCHLIST = [
+        "BTC",
+        "AI",
+        "SHIB",
+        "TRUMP",
+        "XRP",
+        "DOT"
+    ]
+
+    message = "📋 WATCHLIST\n\n"
+
+    for coin in WATCHLIST:
+
+        market = coin + "INR"
+
+        try:
+
+            price = get_price(market)
+
+            message += (
+                f"{coin}: ₹{price:.2f}\n"
+            )
+
+        except Exception:
+
+            message += (
+                f"{coin}: Price Not Found\n"
+            )
+
+    await update.message.reply_text(
+        message
+    )
+
 
 app.add_handler(
     CommandHandler(
@@ -155,18 +196,25 @@ app.add_handler(
         balance
     )
 )
-
+# trades app handiler
 app.add_handler(
     CommandHandler(
         "trades",
         trades
     )
 )
-
+# price app handiler
 app.add_handler(
     CommandHandler(
         "price",
         price
+    )
+)
+# watchlist app handiler
+app.add_handler(
+    CommandHandler(
+        "watchlist",
+        watchlist
     )
 )
 
